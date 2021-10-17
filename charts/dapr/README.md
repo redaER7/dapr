@@ -1,250 +1,132 @@
-# Introduction
+<div style="text-align: center"><img src="/img/dapr_logo.svg" height="120px">
+<h2>Any language, any framework, anywhere</h2>
+</div>
 
-This chart deploys the Dapr control plane system services on a Kubernetes cluster using the Helm package manager.
+[![Go Report Card](https://goreportcard.com/badge/github.com/dapr/dapr)](https://goreportcard.com/report/github.com/dapr/dapr)
+[![Docker Pulls](https://img.shields.io/docker/pulls/daprio/daprd)](https://hub.docker.com/r/daprio/dapr)
+[![Build Status](https://github.com/dapr/dapr/workflows/dapr/badge.svg?event=push&branch=master)](https://github.com/dapr/dapr/actions?workflow=dapr)
+[![Scheduled e2e test](https://github.com/dapr/dapr/workflows/dapr-test/badge.svg?event=schedule)](https://github.com/dapr/dapr/actions?workflow=dapr-test)
+[![codecov](https://codecov.io/gh/dapr/dapr/branch/master/graph/badge.svg)](https://codecov.io/gh/dapr/dapr)
+[![Discord](https://img.shields.io/discord/778680217417809931)](https://discord.com/channels/778680217417809931/778680217417809934)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TODOs](https://badgen.net/https/api.tickgit.com/badgen/github.com/dapr/dapr)](https://www.tickgit.com/browse?repo=github.com/dapr/dapr)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/daprdev.svg?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=daprdev)
 
-## Chart Details
+Dapr is a portable, serverless, event-driven runtime that makes it easy for developers to build resilient, stateless and stateful microservices that run on the cloud and edge and embraces the diversity of languages and developer frameworks.
 
-This chart installs Dapr via "child-charts":
+Dapr codifies the *best practices* for building microservice applications into open, independent, building blocks that enable you to build portable applications with the language and framework of your choice. Each building block is independent and you can use one, some, or all of them in your application.
 
-* Dapr Component and Configuration Kubernetes CRDs
-* Dapr Operator
-* Dapr Sidecar injector
-* Dapr Sentry
-* Dapr Placement
-* Dapr Dashboard
+![Dapr overview](./img/overview.png)
 
-## Prerequisites
+## Goals
 
-* Kubernetes cluster with RBAC (Role-Based Access Control) enabled is required
-* Helm 3.4.0 or newer
+- Enable developers using *any* language or framework to write distributed applications
+- Solve the hard problems developers face building microservice applications by providing best practice building blocks
+- Be community driven, open and vendor neutral
+- Gain new contributors
+- Provide consistency and portability through open APIs
+- Be platform agnostic across cloud and edge
+- Embrace extensibility and provide pluggable components without vendor lock-in
+- Enable IoT and edge scenarios by being highly performant and lightweight
+- Be incrementally adoptable from existing code, with no runtime dependency
 
-## Resources Required
-The chart deploys pods that consume minimum resources as specified in the resources configuration parameter.
+## How it works
 
-## Install the Chart
+Dapr injects a side-car (container or process) to each compute unit. The side-car interacts with event triggers and communicates with the compute unit via standard HTTP or gRPC protocols. This enables Dapr to support all existing and future programming languages without requiring you to import frameworks or libraries.
 
-Ensure Helm is initialized in your Kubernetes cluster.
+Dapr offers built-in state management, reliable messaging (at least once delivery), triggers and bindings through standard HTTP verbs or gRPC interfaces. This allows you to write stateless, stateful and actor-like services following the same programming paradigm. You can freely choose consistency model, threading model and message delivery patterns.
 
-For more details on initializing Helm, [read the Helm docs](https://helm.sh/docs/)
+Dapr runs natively on Kubernetes, as a self hosted binary on your machine, on an IoT device, or as a container that can be injected into any system, in the cloud or on-premises.
 
-1. Add dapr.github.io as an helm repo
-    ```
-    helm repo add dapr https://dapr.github.io/helm-charts/
-    helm repo update
-    ```
-
-2. Install the Dapr chart on your cluster in the dapr-system namespace:
-    ```
-    helm install dapr dapr/dapr --namespace dapr-system --wait
-    ```
-
-## Verify installation
-
-Once the chart is installed, verify the Dapr control plane system service pods are running in the `dapr-system` namespace:
-```
-kubectl get pods --namespace dapr-system
-```
-
-## Uninstall the Chart
-
-To uninstall/delete the `dapr` release:
-```
-helm uninstall dapr -n dapr-system
-```
-
-## Upgrade the charts
-
-Follow the upgrade HowTo instructions in [Upgrading Dapr with Helm](https://docs.dapr.io/operations/hosting/kubernetes/kubernetes-production/#upgrading-dapr-with-helm).
+Dapr uses pluggable component state stores and message buses such as Redis as well as gRPC to offer a wide range of communication methods, including direct dapr-to-dapr using gRPC and async Pub-Sub with guaranteed delivery and at-least-once semantics.
 
 
-## Resource configuration
-By default, all deployments are configured with blank `resources` attributes, which means that pods will consume as much cpu and memory as they want. This is probably fine for a local development or a non-production setup, but for production you should configure them. Consult Dapr docs and [Kubernetes docs](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) for guidance on setting these values.
+## Why Dapr?
 
-For example, in order to configure the `memory.requests` setting for the `dapr-operator` deployment, configure a values.yml file with the following:
-```yaml
-dapr_operator:
-  resources:
-    requests:
-      memory: 200Mi
-```
+Writing high performance, scalable and reliable distributed application is hard. Dapr brings proven patterns and practices to you. It unifies event-driven and actors semantics into a simple, consistent programming model. It supports all programming languages without framework lock-in. You are not exposed to low-level primitives such as threading, concurrency control, partitioning and scaling. Instead, you can write your code by implementing a simple web server using familiar web frameworks of your choice.
 
-## Configuration
+Dapr is flexible in threading and state consistency models. You can leverage multi-threading if you choose to, and you can choose among different consistency models. This flexibility enables to implement advanced scenarios without artificial constraints. Dapr is unique because you can transition seamlessly between platforms and underlying implementations without rewriting your code.
 
-The Helm chart has the follow configuration options that can be supplied:
+## Features
 
-### Global options:
-| Parameter                                 | Description                                                             | Default                 |
-|-------------------------------------------|-------------------------------------------------------------------------|-------------------------|
-| `global.registry`                         | Docker image registry                                                   | `docker.io/daprio`      |
-| `global.tag`                              | Docker image version tag                                                | `1.4.3`            |
-| `global.logAsJson`                        | Json log format for control plane services                              | `false`                 |
-| `global.imagePullPolicy`                  | Global Control plane service imagePullPolicy                            | `IfNotPresent`          |
-| `global.imagePullSecrets`                 | Control plane service images pull secrets for docker registry            | `""`                   |
-| `global.ha.enabled`                       | Highly Availability mode enabled for control plane, except for placement service | `false`        |
-| `global.ha.replicaCount`                  | Number of replicas of control plane services in Highly Availability mode  | `3`                   |
-| `global.ha.disruption.minimumAvailable`   | Minimum amount of available instances for control plane. This can either be effective count or %. | ``             |
-| `global.ha.disruption.maximumUnavailable`   | Maximum amount of instances that are allowed to be unavailable for control plane. This can either be effective count or %. | `25%`             |
-| `global.prometheus.enabled`               | Prometheus metrics enablement for control plane services                | `true`                  |
-| `global.prometheus.port`                  | Prometheus scrape http endpoint port                                    | `9090`                  |
-| `global.mtls.enabled`                     | Mutual TLS enablement                                                   | `true`                  |
-| `global.mtls.workloadCertTTL`             | TTL for workload cert                                                   | `24h`                   |
-| `global.mtls.allowedClockSkew`            | Allowed clock skew for workload cert rotation                           | `15m`                   |
-| `global.dnsSuffix`                        | Kuberentes DNS suffix                                                   | `.cluster.local`        |
-| `global.daprControlPlaneOs`               | Operating System for Dapr control plane                                 | `linux`                 |
-| `global.daprControlPlaneArch`             | CPU Architecture for Dapr control plane                                 | `amd64`                 |
-| `global.nodeSelector`                     | Pods will be scheduled onto a node node whose labels match the nodeSelector | `{}`                 |
-| `global.tolerations`                     | Pods will be allowed to schedule onto a node whose taints match the tolerations | `{}`                 |
+* Event-driven Pub-Sub system with pluggable providers and at-least-once semantics
+* Input and output bindings with pluggable providers
+* State management with pluggable data stores
+* Consistent service-to-service discovery and invocation
+* Opt-in stateful models: Strong/Eventual consistency, First-write/Last-write wins
+* Cross platform virtual actors
+* Secrets management to retrieve secrets from secure key vaults
+* Rate limiting
+* Built-in [Observability](https://docs.dapr.io/concepts/observability-concept/) support
+* Runs natively on Kubernetes using a dedicated Operator and CRDs
+* Supports all programming languages via HTTP and gRPC
+* Multi-Cloud, open components (bindings, pub-sub, state) from Azure, AWS, GCP
+* Runs anywhere, as a process or containerized
+* Lightweight (58MB binary, 4MB physical memory)
+* Runs as a sidecar - removes the need for special SDKs or libraries
+* Dedicated CLI - developer friendly experience with easy debugging
+* Clients for Java, .NET Core, Go, Javascript, Python, Rust and C++
 
-### Dapr Dashboard options:
-| Parameter                                 | Description                                                             | Default                 |
-|-------------------------------------------|-------------------------------------------------------------------------|-------------------------|
-| `dapr_dashboard.replicaCount`             | Number of replicas                                 | `1`                     |
-| `dapr_dashboard.logLevel`                 | service Log level                                        | `info`                  |
-| `dapr_dashboard.image.registry`           | docker registry                                          | `docker.io/daprio`      |
-| `dapr_dashboard.image.imagePullSecrets`   | docker images pull secrets for docker registry           | `docker.io/daprio`      |
-| `dapr_dashboard.image.name`               | docker image name                                        | `dashboard`             |
-| `dapr_dashboard.image.tag`                | docker image tag                                         | `"0.6.0"`               |
-| `dapr_dashboard.serviceType`              | Type of [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to use for the Dapr Dashboard service | `ClusterIP` |
-| `dapr_dashboard.runAsNonRoot`             | Boolean value for `securityContext.runAsNonRoot`. You may have to set this to `false` when running in Minikube | `true` |
-| `dapr_dashboard.resources`                | Value of `resources` attribute. Can be used to set memory/cpu resources/limits. See the section "Resource configuration" above. Defaults to empty | `{}` |
+## Get Started using Dapr
 
-### Dapr Operator options:
-| Parameter                                 | Description                                                             | Default                 |
-|-------------------------------------------|-------------------------------------------------------------------------|-------------------------|
-| `dapr_operator.replicaCount`              | Number of replicas                                                      | `1`                     |
-| `dapr_operator.logLevel`                  | Log level                                                               | `info`                  |
-| `dapr_operator.image.name`                | Docker image name (`global.registry/dapr_operator.image.name`)          | `dapr`                  |
-| `dapr_operator.runAsNonRoot`              | Boolean value for `securityContext.runAsNonRoot`. You may have to set this to `false` when running in Minikube | `true` |
-| `dapr_operator.resources`                 | Value of `resources` attribute. Can be used to set memory/cpu resources/limits. See the section "Resource configuration" above. Defaults to empty | `{}` |
-| `dapr_operator.debug.enabled`             | Boolean value for enabling debug mode | `{}` |
+See our [Getting Started](https://docs.dapr.io/getting-started/) guide over in our docs.
 
-### Dapr Placement options:
-| Parameter                                 | Description                                                             | Default                 |
-|-------------------------------------------|-------------------------------------------------------------------------|-------------------------|
-| `dapr_placement.replicaCount`             | Number of replicas                                                      | `1`                     |
-| `dapr_placement.replicationFactor`        | Number of consistent hashing virtual node | `100`   |
-| `dapr_placement.logLevel`                 | Service Log level                                                       | `info`                  |
-| `dapr_placement.image.name`               | Service docker image name (`global.registry/dapr_placement.image.name`) | `dapr`   |
-| `dapr_placement.cluster.forceInMemoryLog` | Use in-memeory log store and disable volume attach when `global.ha.enabled` is true | `false`   |
-| `dapr_placement.cluster.logStorePath`     | Mount path for persistent volume for log store in unix-like system when `global.ha.enabled` is true | `/var/run/dapr/raft-log`   |
-| `dapr_placement.cluster.logStoreWinPath`  | Mount path for persistent volume for log store in windows when `global.ha.enabled` is true | `C:\\raft-log`   |
-| `dapr_placement.volumeclaims.storageSize` | Attached volume size | `1Gi`   |
-| `dapr_placement.volumeclaims.storageClassName` | storage class name |    |
-| `dapr_placement.runAsNonRoot`             | Boolean value for `securityContext.runAsNonRoot`. Does not apply unless `forceInMemoryLog` is set to `true`. You may have to set this to `false` when running in Minikube | `false` |
-| `dapr_placement.resources`                | Value of `resources` attribute. Can be used to set memory/cpu resources/limits. See the section "Resource configuration" above. Defaults to empty | `{}` |
-| `dapr_placement.debug.enabled`            | Boolean value for enabling debug mode | `{}` |
+## Quickstarts and Samples
 
-### Dapr Sentry options:
-| Parameter                                 | Description                                                             | Default                 |
-|-------------------------------------------|-------------------------------------------------------------------------|-------------------------|
-| `dapr_sentry.replicaCount`                | Number of replicas                                                      | `1`                     |
-| `dapr_sentry.logLevel`                    | Log level                                                               | `info`                  |
-| `dapr_sentry.image.name`                  | Docker image name (`global.registry/dapr_sentry.image.name`)            | `dapr`                  |
-| `dapr_sentry.tls.issuer.certPEM`          | Issuer Certificate cert                                                 | `""`                    |
-| `dapr_sentry.tls.issuer.keyPEM`           | Issuer Private Key cert                                                 | `""`                    |
-| `dapr_sentry.tls.root.certPEM`            | Root Certificate cert                                                   | `""`                    |
-| `dapr_sentry.trustDomain`                 | Trust domain (logical group to manage app trust relationship) for access control list | `cluster.local`  |
-| `dapr_sentry.runAsNonRoot`                | Boolean value for `securityContext.runAsNonRoot`. You may have to set this to `false` when running in Minikube | `true` |
-| `dapr_sentry.resources`                   | Value of `resources` attribute. Can be used to set memory/cpu resources/limits. See the section "Resource configuration" above. Defaults to empty | `{}` |
-| `dapr_sentry.debug.enabled`               | Boolean value for enabling debug mode | `{}` |
+* See the [quickstarts repository](https://github.com/dapr/quickstarts) for code examples that can help you get started with Dapr.
+* Explore additional samples in the Dapr [samples repository](https://github.com/dapr/samples).
 
-### Dapr Sidecar Injector options:
-| Parameter                                 | Description                                                             | Default                 |
-|-------------------------------------------|-------------------------------------------------------------------------|-------------------------|
-| `dapr_sidecar_injector.sidecarImagePullPolicy`      | Dapr sidecar image pull policy                                | `IfNotPresent`                     |
-| `dapr_sidecar_injector.replicaCount`      | Number of replicas                                                      | `1`                     |
-| `dapr_sidecar_injector.logLevel`          | Log level                                                               | `info`                  |
-| `dapr_sidecar_injector.image.name`        | Docker image name for Dapr runtime sidecar to inject into an application (`global.registry/dapr_sidecar_injector.image.name`) | `daprd`|
-| `dapr_sidecar_injector.injectorImage.name` | Docker image name for sidecar injector service (`global.registry/dapr_sidecar_injector.injectorImage.name`) | `dapr`|
-| `dapr_sidecar_injector.webhookFailurePolicy` | Failure policy for the sidecar injector                              | `Ignore`                |
-| `dapr_sidecar_injector.runAsNonRoot`      | Boolean value for `securityContext.runAsNonRoot`. You may have to set this to `false` when running in Minikube | `true` |
-| `dapr_sidecar_injector.resources`         | Value of `resources` attribute. Can be used to set memory/cpu resources/limits. See the section "Resource configuration" above. Defaults to empty | `{}` |
-| `dapr_sidecar_injector.debug.enabled`     | Boolean value for enabling debug mode | `{}` |
-| `dapr_sidecar_injector.kubeClusterDomain` | Domain for this kubernetes cluster. If not set, will auto-detect the cluster domain through the `/etc/resolv.conf` file `search domains` content. | `cluster.local` |
+## Community
+We want your contributions and suggestions! One of the easiest ways to contribute is to participate in discussions on the mailing list, chat on IM or the bi-weekly community calls.
+For more information on the community engagement, developer and contributing guidelines and more, head over to the [Dapr community repo](https://github.com/dapr/community#dapr-community)
+
+### Contact Us
+
+Reach out with any questions you may have and we'll make sure to answer then as soon as possible!
+
+| Platform  | Link        |
+|:----------|:------------|
+| 💬 Instant Message Chat (preferred) | [![Discord Banner](https://discord.com/api/guilds/778680217417809931/widget.png?style=banner2)](https://aka.ms/dapr-discord)
+| 📧 Mailing List | https://groups.google.com/forum/#!forum/dapr-dev
+| 🐤 Twitter | [@daprdev](https://twitter.com/daprdev)
+
+### Community Call
+
+Every two weeks we host a community call to showcase new features, review upcoming milestones, and engage in a Q&A. All are welcome!
+
+📞 Visit https://aka.ms/dapr-community-call for upcoming dates and the meeting link.
+
+### Videos and Podcasts
+
+We have a variety of keynotes, podcasts, and presentations available to reference and learn from.
+
+📺 Visit https://docs.dapr.io/contributing/presentations/ for previous talks and slide decks.
+
+### Contributing to Dapr
+
+See the [Development Guide](https://docs.dapr.io/contributing/) to get started with building and developing.
+
+## Repositories
+
+| Repo | Description |
+|:-----|:------------|
+| [Dapr](https://github.com/dapr/dapr) | The main repository that you are currently in. Contains the Dapr runtime code and overview documentation.
+| [CLI](https://github.com/dapr/cli) | The Dapr CLI allows you to setup Dapr on your local dev machine or on a Kubernetes cluster, provides debugging support, launches and manages Dapr instances.
+| [Docs](https://docs.dapr.io) | The documentation for Dapr.
+| [Quickstarts](https://github.com/dapr/quickstarts) | This repository contains a series of simple code samples that highlight the main Dapr capabilities
+| [Samples](https://github.com/dapr/samples) | This repository holds community maintained samples for various Dapr use cases.
+| [Components-contrib ](https://github.com/dapr/components-contrib) | The purpose of components contrib is to provide open, community driven reusable components for building distributed applications.
+| [Dashboard ](https://github.com/dapr/dashboard) | General purpose dashboard for Dapr
+| [Go-sdk](https://github.com/dapr/go-sdk) | Dapr SDK for Go
+| [Java-sdk](https://github.com/dapr/java-sdk) | Dapr SDK for Java
+| [JS-sdk](https://github.com/dapr/js-sdk) | Dapr SDK for JavaScript
+| [Python-sdk](https://github.com/dapr/python-sdk) | Dapr SDK for Python
+| [Dotnet-sdk](https://github.com/dapr/dotnet-sdk) | Dapr SDK for .NET Core
+| [Rust-sdk](https://github.com/dapr/rust-sdk) | Dapr SDK for Rust
+| [Cpp-sdk](https://github.com/dapr/cpp-sdk) | Dapr SDK for C++
+| [PHP-sdk](https://github.com/dapr/php-sdk) | Dapr SDK for PHP
 
 
+## Code of Conduct
 
-
-
-
-## Example of highly available configuration of the control plane
-
-This command creates three replicas of each control plane pod for an HA deployment (with the exception of the Placement pod) in the dapr-system namespace:
-
-```
-helm install dapr dapr/dapr --namespace dapr-system --set global.ha.enabled=true --wait
-```
-
-## Example of installing edge version of Dapr
-
-This command deploys the latest `edge` version of Dapr to `dapr-system` namespace. This is useful if you want to deploy the latest version of Dapr to test a feature or some capability in your Kubernetes cluster.
-
-```
-helm install dapr dapr/dapr --namespace dapr-system --set-string global.tag=edge --wait
-```
-
-## Example of installing dapr on Minikube
-Configure a values file with these options:
-```yaml
-dapr_dashboard:
-  runAsNonRoot: false
-  logLevel: DEBUG
-  serviceType: NodePort  # Allows retrieving the dashboard url by running the command "minikube service list"
-dapr_placement:
-  runAsNonRoot: false
-  logLevel: DEBUG
-dapr_operator:
-  runAsNonRoot: false
-  logLevel: DEBUG
-dapr_sentry:
-  runAsNonRoot: false
-  logLevel: DEBUG
-dapr_sidecar_injector:
-  runAsNonRoot: false
-  logLevel: DEBUG
-global:
-  logAsJson: true
-```
-
-Install dapr:
-```bash
-helm install dapr dapr/dapr --namespace dapr-system --values values.yml --wait
-```
-
-## Example of debugging dapr
-Rebuild dapr binaries and docker images:
-```bash
-make release GOOS=linux GOARCH=amd64 DEBUG=1
-export DAPR_TAG=dev
-export DAPR_REGISTRY=<your docker.io id>
-docker login
-make docker-push DEBUG=1
-```
-Take dapr_operator as an example, configure the corresponding `debug.enabled` option in a value file:
-```yaml
-global:
-   registry: docker.io/<your docker.io id>
-   tag: "dev-linux-amd64"
-dapr_operator:
-  debug:
-    enabled: true
-```
-
-Step into dapr project, and install dapr:
-```bash
-helm install dapr charts/dapr --namespace dapr-system --values values.yml --wait
-```
-
-Find the target dapr-operator pod:
-```bash
-kubectl get pods -n dapr-system -o wide
-```
-
-Port forward the debugging port so that it's visible to your IDE:
-```bash
-kubectl port-forward dapr-operator-5c99475ffc-m9z9f 40000:40000 -n dapr-system
-```
-## Example of using nodeSelector option
-```
-helm install dapr dapr/dapr --namespace dapr-system --set global.nodeSelector.myLabel=myValue --wait
-```
+Please refer to our [Dapr Community Code of Conduct](https://github.com/dapr/community/blob/master/CODE-OF-CONDUCT.md)
