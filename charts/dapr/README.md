@@ -14,7 +14,7 @@ We want to have two dapr configurations on two namespaces `dev` and `uat` in the
 
 Dapr chart is succefully installed on `dev` namespace, when installing a second dapr chart on `uat` namespace, we get ClusterRole ClusterRoleBinding webhook errors because existing chart applies cluster-wide ressource
 
-==> Customizing chart so that dapr helm chart installation can be namespaced
+Customizing chart so that different dapr configurations can exist in different namespaces in same cluster. 
 
 ### Edit sub-chart dapr_rbac
 
